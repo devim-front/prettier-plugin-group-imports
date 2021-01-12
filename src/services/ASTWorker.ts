@@ -92,7 +92,11 @@ export class ASTWorker {
       ImportDeclaration: ({ node }: NodePath<ImportDeclaration>) => {
         let { start, end } = node;
 
-        if (!start || !end || !node.loc) {
+        if (
+          'number' !== typeof start ||
+          'number' !== typeof end ||
+          null === node.loc
+        ) {
           return;
         }
 
@@ -138,15 +142,7 @@ export class ASTWorker {
           end = node.trailingComments.reduce((value, comment) => {
             const key = `${comment.start}_${comment.end}`;
 
-            if (visitedComments[key]) {
-              return value;
-            }
-
             if (comment.loc.start.line !== node.loc!.end.line) {
-              return value;
-            }
-
-            if (comment.end <= value) {
               return value;
             }
 
@@ -190,7 +186,7 @@ export class ASTWorker {
     while (sortedNodes.length) {
       const node = sortedNodes.pop()!;
 
-      newSource += this.source.slice(lastIndex, node.bounds.start).trimRight();
+      newSource += this.source.slice(lastIndex, node.bounds.start);
       lastIndex = node.bounds.end;
     }
 
@@ -232,7 +228,9 @@ export class ASTWorker {
 
     if ('leading' === location) {
       insertIndex = 0;
-    } else if ('auto' === location) {
+    }
+
+    if ('auto' === location) {
       insertIndex = nodes.reduce((allIndex, group) => {
         const groupIndex = group.reduce((value, node) => {
           if (value < node.bounds.start) {
