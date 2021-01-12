@@ -17,7 +17,7 @@ export interface Node<T extends Statement = Statement> {
   /**
    * Node location in the source code
    */
-  bounds: {
+  innerBounds: {
     /**
      * Start index of a node representation in the source code
      */
@@ -25,6 +25,21 @@ export interface Node<T extends Statement = Statement> {
 
     /**
      * End index of a node representation in the source code
+     */
+    end: number;
+  };
+
+  /**
+   * Node location including whitespaces
+   */
+  outerBounds: {
+    /**
+     * Start index of a node representation in the source code including whitespaces
+     */
+    start: number;
+
+    /**
+     * End index of a node representation in the source code including whitespaces
      */
     end: number;
   };

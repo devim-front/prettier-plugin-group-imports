@@ -154,11 +154,22 @@ export class ASTWorker {
 
         const value = this.initialSource.slice(start, end);
 
+        const outerStart = this.initialSource.endsWith(this.endOfLine, start)
+          ? start - this.endOfLine.length
+          : start;
+        const outerEnd = this.initialSource.startsWith(this.endOfLine, end)
+          ? end + this.endOfLine.length
+          : end;
+
         result.push({
           target: node,
-          bounds: {
+          innerBounds: {
             start,
             end,
+          },
+          outerBounds: {
+            start: outerStart,
+            end: outerEnd,
           },
           value,
         });
@@ -178,16 +189,16 @@ export class ASTWorker {
     }
 
     const sortedNodes = nodes
-      .sort((a, b) => b.bounds.start - a.bounds.start)
+      .sort((a, b) => b.innerBounds.start - a.innerBounds.start)
       .slice();
-    let newSource = this.endOfLine;
+    let newSource = '';
     let lastIndex = 0;
 
     while (sortedNodes.length) {
       const node = sortedNodes.pop()!;
 
-      newSource += this.source.slice(lastIndex, node.bounds.start);
-      lastIndex = node.bounds.end;
+      newSource += this.source.slice(lastIndex, node.innerBounds.start);
+      lastIndex = node.outerBounds.end;
     }
 
     newSource += this.source.slice(lastIndex);
@@ -209,7 +220,7 @@ export class ASTWorker {
     }, '');
 
     const newSource =
-      this.source.slice(0, insertIndex) + this.endOfLine + importsSource;
+      this.source.slice(0, insertIndex) + importsSource + this.endOfLine;
 
     this.source = newSource + this.source.slice(insertIndex);
 
@@ -233,11 +244,11 @@ export class ASTWorker {
     if ('auto' === location) {
       insertIndex = nodes.reduce((allIndex, group) => {
         const groupIndex = group.reduce((value, node) => {
-          if (value < node.bounds.start) {
+          if (value < node.innerBounds.start) {
             return value;
           }
 
-          return node.bounds.start;
+          return node.innerBounds.start;
         }, Infinity);
 
         if (allIndex < groupIndex) {

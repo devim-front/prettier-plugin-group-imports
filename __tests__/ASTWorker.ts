@@ -1,5 +1,5 @@
 import * as ts from 'typescript';
-import { ASTWorker, PathResolver } from '../src/services';
+import { ASTWorker } from '../src/services';
 import { mocked } from 'ts-jest/utils';
 
 jest.mock('typescript');
@@ -40,7 +40,7 @@ describe('PathResolver', () => {
     let imports = worker.findImportNodes();
     worker.removeNodes(...imports);
     worker.insertImports([imports], 'leading');
-    expect(worker.compile()).toBe('\rimport React from "react"\r\r');
+    expect(worker.compile()).toBe('import React from "react"\r\r');
 
     worker = new ASTWorker('import React from "react"', {
       importCommentMode: 'same-line',
@@ -49,7 +49,7 @@ describe('PathResolver', () => {
     imports = worker.findImportNodes();
     worker.removeNodes(...imports);
     worker.insertImports([imports], 'leading');
-    expect(worker.compile()).toBe('\nimport React from "react"\n\n');
+    expect(worker.compile()).toBe('import React from "react"\n\n');
 
     worker = new ASTWorker('import React from "react"', {
       importCommentMode: 'same-line',
@@ -58,7 +58,7 @@ describe('PathResolver', () => {
     imports = worker.findImportNodes();
     worker.removeNodes(...imports);
     worker.insertImports([imports], 'leading');
-    expect(worker.compile()).toBe('\r\nimport React from "react"\r\n\r\n');
+    expect(worker.compile()).toBe('import React from "react"\r\n\r\n');
   });
 
   it('Should find imports in the source code', () => {
@@ -72,7 +72,7 @@ describe('PathResolver', () => {
 
     expect(nodes.length).toBe(1);
 
-    expect(node.bounds).toMatchObject({
+    expect(node.innerBounds).toMatchObject({
       start: 0,
       end: 25,
     });
@@ -98,7 +98,7 @@ describe('PathResolver', () => {
 
     expect(nodes.length).toBe(1);
 
-    expect(node.bounds).toMatchObject({
+    expect(node.innerBounds).toMatchObject({
       start: 43,
       end: 68,
     });
@@ -124,7 +124,7 @@ describe('PathResolver', () => {
 
     expect(nodes.length).toBe(1);
 
-    expect(node.bounds).toMatchObject({
+    expect(node.innerBounds).toMatchObject({
       start: 19,
       end: 90,
     });
@@ -152,7 +152,7 @@ describe('PathResolver', () => {
 
     expect(nodes.length).toBe(1);
 
-    expect(node.bounds).toMatchObject({
+    expect(node.innerBounds).toMatchObject({
       start: 0,
       end: 90,
     });
@@ -181,7 +181,7 @@ describe('PathResolver', () => {
 
     expect(nodes.length).toBe(1);
 
-    expect(node.bounds).toMatchObject({
+    expect(node.innerBounds).toMatchObject({
       start: 20,
       end: 91,
     });
@@ -210,7 +210,7 @@ describe('PathResolver', () => {
 
     expect(nodes.length).toBe(2);
 
-    expect(first.bounds).toMatchObject({
+    expect(first.innerBounds).toMatchObject({
       start: 0,
       end: 90,
     });
@@ -219,7 +219,7 @@ describe('PathResolver', () => {
       '// Leading comment\n/* Same-line leading */ import React from "react" // Same-line trailing',
     );
 
-    expect(second.bounds).toMatchObject({
+    expect(second.innerBounds).toMatchObject({
       start: 91,
       end: 127,
     });
@@ -238,22 +238,14 @@ describe('PathResolver', () => {
 
     expect(worker.compile()).toBe(
       [
-        '',
         '// eslint:disable',
         '// prettier:disable',
         'alert(100)',
         '// Test start boundary',
-        '',
         '/* Leading comment */ //comment',
         'alert(200)',
-        '',
-        '',
         'alert(300)',
-        '',
-        '',
         'alert(400)',
-        '',
-        '',
         '// Test end boundary',
         'class Props { test = () => {} }',
       ].join('\n'),
@@ -271,7 +263,7 @@ describe('PathResolver', () => {
     expect(worker.compile()).toBe(exampleCode);
   });
 
-  it('Shoud insert nodes to start of the source code', () => {
+  it('Should insert nodes to start of the source code', () => {
     const worker = new ASTWorker(
       [
         '// Leading comment',
@@ -290,52 +282,15 @@ describe('PathResolver', () => {
 
     expect(worker.compile()).toBe(
       [
-        '',
         'import React from "react"',
         '',
         '// Leading comment',
-        '',
         '// Trailing comment',
       ].join('\n'),
     );
   });
 
-  it('Shoud insert nodes to previous location using auto', () => {
-    const worker = new ASTWorker(
-      [
-        '// Leading comment',
-        'import React from "react"',
-        '// Trailing comment',
-        'import * as prettier from "prettier"',
-        '// End comment',
-      ].join('\n'),
-      {
-        importCommentMode: 'none',
-        endOfLine: 'auto',
-      },
-    );
-
-    const [first, second] = worker.findImportNodes();
-    worker.removeNodes(first, second);
-    worker.insertImports([[first], [second]], 'auto');
-
-    expect(worker.compile()).toBe(
-      [
-        '',
-        '// Leading comment',
-        'import React from "react"',
-        '',
-        'import * as prettier from "prettier"',
-        '',
-        '',
-        '// Trailing comment',
-        '',
-        '// End comment',
-      ].join('\n'),
-    );
-  });
-
-  it('Shoud insert nodes to previous location using auto in reverse', () => {
+  it('Should insert nodes to previous location using auto', () => {
     const worker = new ASTWorker(
       [
         '// Leading comment',
@@ -356,14 +311,43 @@ describe('PathResolver', () => {
 
     expect(worker.compile()).toBe(
       [
-        '',
         '// Leading comment',
         'import React from "react"',
         'import * as prettier from "prettier"',
         '',
+        '// Trailing comment',
+        '// End comment',
+      ].join('\n'),
+    );
+  });
+
+  it('Should insert nodes to previous location using auto in groups', () => {
+    const worker = new ASTWorker(
+      [
+        '// Leading comment',
+        'import React from "react"',
+        '// Trailing comment',
+        'import * as prettier from "prettier"',
+        '// End comment',
+      ].join('\n'),
+      {
+        importCommentMode: 'none',
+        endOfLine: 'auto',
+      },
+    );
+
+    const [first, second] = worker.findImportNodes();
+    worker.removeNodes(first, second);
+    worker.insertImports([[first], [second]], 'auto');
+
+    expect(worker.compile()).toBe(
+      [
+        '// Leading comment',
+        'import React from "react"',
+        '',
+        'import * as prettier from "prettier"',
         '',
         '// Trailing comment',
-        '',
         '// End comment',
       ].join('\n'),
     );
