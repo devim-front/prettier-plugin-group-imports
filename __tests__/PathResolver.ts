@@ -161,13 +161,4 @@ describe('PathResolver', () => {
       path.join('./folder1/components/file1'),
     );
   });
-
-  // it('Should return correct path if tsconfig was found', () => {
-  //   tsMock.findConfigFile.mockReturnValueOnce('./tsconfig.json');
-
-  //   const result = getTsConfigPath('tsconfig.json', './');
-
-  //   expect(result).toBe('./tsconfig.json');
-  //   expect(ts.findConfigFile).toHaveBeenCalledTimes(1);
-  // });
 });

@@ -12,7 +12,6 @@ describe('getTsConfig', () => {
   });
 
   it('Should return null if no tsconfig was present', () => {
-    // tsMock.findConfigFile.mockReturnValueOnce('./tsconfig.json');
     tsMock.findConfigFile.mockReturnValueOnce(undefined);
 
     const result = getTsConfigPath('tsconfig.json', './');
