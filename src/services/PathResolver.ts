@@ -158,5 +158,6 @@ export class PathResolver {
    * Returns extension of the provided file path
    * @param filePath Path to the file to check
    */
-  public getExtension = (filePath: string): string => path.extname(filePath);
+  public getExtension = (filePath: string): string =>
+    path.extname(filePath).slice(1);
 }
