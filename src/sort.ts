@@ -53,11 +53,6 @@ interface SorterOptions {
    * @default 'deepest-first'
    */
   relativeSortAlg?: 'shallow-first' | 'deepest-first';
-
-  /**
-   * RegExp pattern to split local imports
-   */
-  splitLocalPattern?: string;
 }
 
 /**
@@ -89,7 +84,6 @@ export function sort(text: string, options: Options) {
     ],
     splitRelativeGroups = true,
     relativeSortAlg = 'deepest-first',
-    splitLocalPattern,
   } = options;
 
   const configSearchPath = filepath || process.cwd();
@@ -131,7 +125,6 @@ export function sort(text: string, options: Options) {
   const importGroups = sorter.process(importNodes, {
     groups,
     splitRelativeGroups,
-    splitLocalPattern,
     relativeSortAlg,
   });
 
