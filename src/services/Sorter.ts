@@ -31,11 +31,6 @@ interface Options {
    * Direction of the relative sorting alg
    */
   relativeSortAlg?: 'shallow-first' | 'deepest-first';
-
-  /**
-   * RegExp pattern to split local imports
-   */
-  splitLocalPattern?: string;
 }
 
 interface ProcessedNode {
@@ -153,7 +148,7 @@ export class Sorter {
     nodes: Array<Node<ImportDeclaration>>,
     options: Options,
   ) => {
-    const { splitRelativeGroups, relativeSortAlg, splitLocalPattern } = options;
+    const { splitRelativeGroups, relativeSortAlg } = options;
     const groups = [...options.groups];
 
     const meta = this.resolveMetadata(nodes);
@@ -220,31 +215,6 @@ export class Sorter {
           if (sortedData.length) {
             flatResult.push(sortedData);
           }
-        });
-      } else if (group === 'local' && splitLocalPattern) {
-        const pattern = new RegExp(splitLocalPattern);
-
-        const localGroups = result[group]!.reduce(
-          (acc, node) => {
-            const matches = pattern.exec(node.target.target.source.value);
-            const subGroup = matches
-              ? matches[matches.length - 1]
-              : '__UNMATCHED';
-
-            if (!(subGroup in acc)) {
-              acc[subGroup] = [];
-            }
-
-            acc[subGroup].push(node);
-
-            return acc;
-          },
-          {} as Record<string, Array<ProcessedNode>>,
-        );
-
-        Object.keys(localGroups).forEach(key => {
-          const sortedData = this.sortGroup(localGroups[key], sortAlg);
-          flatResult.push(sortedData);
         });
       } else {
         const sortedData = this.sortGroup(result[group]!, sortAlg);
