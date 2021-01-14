@@ -2,8 +2,13 @@ import * as path from 'path';
 import { RequiredOptions } from 'prettier';
 
 import { getTsConfig, getTsConfigPath } from './helpers';
-import { PathResolver, ASTWorker } from './services';
-import { SortAlg, Sorter, SortGroup } from './services/Sorter';
+import {
+  PathResolver,
+  ASTWorker,
+  SortAlg,
+  Sorter,
+  SortGroup,
+} from './services';
 
 /**
  * Base configuration

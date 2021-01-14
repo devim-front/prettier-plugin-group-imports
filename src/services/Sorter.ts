@@ -25,12 +25,12 @@ interface Options {
   /**
    * Split relative groups based on deepness
    */
-  splitRelativeGroups?: boolean;
+  splitRelativeGroups: boolean;
 
   /**
    * Direction of the relative sorting alg
    */
-  relativeSortAlg?: 'shallow-first' | 'deepest-first';
+  relativeSortAlg: 'shallow-first' | 'deepest-first';
 }
 
 interface ProcessedNode {
@@ -96,8 +96,8 @@ export class Sorter {
   ): Array<ProcessedNode> =>
     nodes.map((node, order) => {
       const filePath = node.target.source.value;
-      const isLocal = this.pathResolver.isLocal(filePath);
       const relativeDepth = this.resolveRelativeDepth(node);
+      const isLocal = relativeDepth > 0 || this.pathResolver.isLocal(filePath);
       const isStatic = !!this.pathResolver.getExtension(filePath);
 
       return {
@@ -212,9 +212,7 @@ export class Sorter {
 
           const sortedData = this.sortGroup(groupData, sortAlg);
 
-          if (sortedData.length) {
-            flatResult.push(sortedData);
-          }
+          flatResult.push(sortedData);
         });
       } else {
         const sortedData = this.sortGroup(result[group]!, sortAlg);
