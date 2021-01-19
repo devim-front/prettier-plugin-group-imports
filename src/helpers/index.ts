@@ -1,2 +1,3 @@
+export * from './getDependencies';
 export * from './getTsConfig';
-export * from './getTsConfigPath';
+export * from './getConfigFilePath';

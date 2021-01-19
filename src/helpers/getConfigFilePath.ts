@@ -1,11 +1,11 @@
 import * as ts from 'typescript';
 
 /**
- * Searches for a TypeScript configuration file
+ * Searches for a configuration file
  * @param fileName Name of the configuration file to search
  * @param searchPath Deepest directory level where to begin searching upwards
  */
-export function getTsConfigPath(
+export function getConfigFilePath(
   fileName: string,
   searchPath: string,
 ): string | null {
