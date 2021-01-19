@@ -1,13 +1,15 @@
 import * as path from 'path';
 import { RequiredOptions } from 'prettier';
 
-import { getTsConfig, getTsConfigPath } from './helpers';
+import { getTsConfig, getConfigFilePath, getDependencies } from './helpers';
 import {
   PathResolver,
   ASTWorker,
   SortAlg,
   Sorter,
   SortGroup,
+  FSPathResolver,
+  PackagePathResolver,
 } from './services';
 
 /**
@@ -15,9 +17,22 @@ import {
  */
 interface BaseOptions extends RequiredOptions {
   /**
-   * Custom tsconfig.json name to search
+   * File resolver type that is used to determine if provided import is local
+   * @default { "type": "package" }
    */
-  configName?: string;
+  resolver?:
+    | {
+        type: 'fs';
+
+        /**
+         * Custom tsconfig.json name to search
+         * @default "tsconfig.json"
+         */
+        configName?: string;
+      }
+    | {
+        type: 'package';
+      };
 }
 
 /**
@@ -75,7 +90,9 @@ export function sort(text: string, options: Options) {
     filepath,
     endOfLine,
 
-    configName = 'tsconfig.json',
+    resolver = {
+      type: 'package',
+    },
 
     importLocation = 'auto',
     importCommentMode = 'prev-line',
@@ -91,25 +108,62 @@ export function sort(text: string, options: Options) {
     relativeSortAlg = 'deepest-first',
   } = options;
 
+  let pathResolver: PathResolver;
+
+  if ('fs' === resolver.type) {
+    path;
+  }
+
   const configSearchPath = filepath || process.cwd();
-  const configPath = getTsConfigPath(configName, configSearchPath);
 
-  if (!configPath) {
-    return text;
+  switch (resolver.type) {
+    case 'fs': {
+      const configPath = getConfigFilePath(
+        resolver.configName || 'tsconfig.json',
+        configSearchPath,
+      );
+
+      if (!configPath) {
+        return text;
+      }
+
+      const configDirectory = path.dirname(configPath);
+      const config = getTsConfig(configPath);
+
+      if (!config) {
+        return text;
+      }
+
+      pathResolver = new FSPathResolver(configDirectory, {
+        baseUrl: config.options.baseUrl,
+        aliases: config.options.paths,
+        extensions: ['ts', 'tsx', 'js', 'jsx'],
+      });
+      break;
+    }
+
+    case 'package': {
+      const configPath = getConfigFilePath('package.json', configSearchPath);
+
+      if (!configPath) {
+        return text;
+      }
+
+      const dependencies = getDependencies(configPath);
+
+      if (!dependencies) {
+        return text;
+      }
+
+      pathResolver = new PackagePathResolver({
+        dependencies,
+      });
+      break;
+    }
+
+    default:
+      return text;
   }
-
-  const configDirectory = path.dirname(configPath);
-  const config = getTsConfig(configPath);
-
-  if (!config) {
-    return text;
-  }
-
-  const pathResolver = new PathResolver(configDirectory, {
-    baseUrl: config.options.baseUrl,
-    aliases: config.options.paths,
-    extensions: ['ts', 'tsx', 'js', 'jsx'],
-  });
 
   const ast = new ASTWorker(text, {
     sourceType: 'module',
