@@ -1,4 +1,4 @@
-import { ASTWorker, Sorter, PathResolver } from '../src/services';
+import { ASTWorker, Sorter, FSPathResolver } from '../src/services';
 
 describe('Sorter', () => {
   it('Should persist initial order', () => {
@@ -18,7 +18,7 @@ describe('Sorter', () => {
     );
 
     const imports = worker.findImportNodes();
-    const resolver = new PathResolver('./', {});
+    const resolver = new FSPathResolver('./', {});
     const sorter = new Sorter(resolver);
 
     const result = sorter.process(imports, {
@@ -61,7 +61,7 @@ describe('Sorter', () => {
     );
 
     const imports = worker.findImportNodes();
-    const resolver = new PathResolver('./', {});
+    const resolver = new FSPathResolver('./', {});
     const sorter = new Sorter(resolver);
 
     const result = sorter.process(imports, {
@@ -104,7 +104,7 @@ describe('Sorter', () => {
     );
 
     const imports = worker.findImportNodes();
-    const resolver = new PathResolver('./', {});
+    const resolver = new FSPathResolver('./', {});
     const sorter = new Sorter(resolver);
 
     const result = sorter.process(imports, {
@@ -149,7 +149,7 @@ describe('Sorter', () => {
     );
 
     const imports = worker.findImportNodes();
-    const resolver = new PathResolver('./');
+    const resolver = new FSPathResolver('./');
 
     const isLocalMock = jest.fn((fileName: string) =>
       fileName.startsWith('local'),
@@ -219,7 +219,7 @@ describe('Sorter', () => {
     );
 
     const imports = worker.findImportNodes();
-    const resolver = new PathResolver('./');
+    const resolver = new FSPathResolver('./');
 
     const isLocalMock = jest.fn((fileName: string) =>
       fileName.startsWith('local'),
@@ -284,7 +284,7 @@ describe('Sorter', () => {
     );
 
     const imports = worker.findImportNodes();
-    const resolver = new PathResolver('./');
+    const resolver = new FSPathResolver('./');
 
     const isLocalMock = jest.fn((fileName: string) =>
       fileName.startsWith('local'),
@@ -344,7 +344,7 @@ describe('Sorter', () => {
     );
 
     const imports = worker.findImportNodes();
-    const resolver = new PathResolver('./');
+    const resolver = new FSPathResolver('./');
 
     const isLocalMock = jest.fn((fileName: string) =>
       fileName.startsWith('local'),
@@ -435,7 +435,7 @@ describe('Sorter', () => {
     );
 
     const imports = worker.findImportNodes();
-    const resolver = new PathResolver('./');
+    const resolver = new FSPathResolver('./');
 
     const isLocalMock = jest.fn((fileName: string) =>
       fileName.startsWith('local'),

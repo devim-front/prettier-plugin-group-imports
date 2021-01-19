@@ -1,5 +1,6 @@
 import ts from 'typescript';
 import * as path from 'path';
+import { PathResolver } from './PathResolver';
 
 /**
  * Path resolver parameters
@@ -22,10 +23,9 @@ interface Params {
 }
 
 /**
- * Provides helper methods for working with paths. Uses TypeScript
- * configuration data to work
+ * Resolves local paths using TypeScript configuration and FS API
  */
-export class PathResolver {
+export class FSPathResolver extends PathResolver {
   /**
    * Root directory path where source code is located
    */
@@ -47,11 +47,13 @@ export class PathResolver {
   private readonly extensions?: Array<string>;
 
   /**
-   * Constructs a PathResolver instance
+   * Constructs a FSPathResolver instance
    * @param rootPath Root directory path where source code is located
    * @param params Additional parameters
    */
   public constructor(rootPath: string, params: Params = {}) {
+    super();
+
     const { baseUrl, aliases, extensions } = params;
 
     this.rootPath = rootPath;
@@ -103,8 +105,7 @@ export class PathResolver {
   };
 
   /**
-   * Performs check if the file is imported locally using specified configuration
-   * @param filePath Path to the file to check
+   * @inheritdoc
    */
   public isLocal = (filePath: string): boolean => {
     if (filePath.startsWith('.')) {
@@ -153,11 +154,4 @@ export class PathResolver {
       return isLocal;
     });
   };
-
-  /**
-   * Returns extension of the provided file path
-   * @param filePath Path to the file to check
-   */
-  public getExtension = (filePath: string): string =>
-    path.extname(filePath).slice(1);
 }

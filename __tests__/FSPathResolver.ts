@@ -1,6 +1,6 @@
 import * as ts from 'typescript';
 import * as path from 'path';
-import { PathResolver } from '../src/services';
+import { FSPathResolver } from '../src/services';
 import { mocked } from 'ts-jest/utils';
 
 jest.mock('typescript');
@@ -14,7 +14,7 @@ describe('PathResolver', () => {
   });
 
   it('Should return file extensions if present', () => {
-    const resolver = new PathResolver('./', {});
+    const resolver = new FSPathResolver('./', {});
 
     expect(resolver.getExtension('index.ts')).toBe('ts');
     expect(resolver.getExtension('src/code/index.ts')).toBe('ts');
@@ -27,7 +27,7 @@ describe('PathResolver', () => {
   });
 
   it('Should check if file exists', () => {
-    const resolver = new PathResolver('./', {
+    const resolver = new FSPathResolver('./', {
       baseUrl: './base',
     });
 
@@ -43,7 +43,7 @@ describe('PathResolver', () => {
   });
 
   it('Should check for all file extensions if provided', () => {
-    const resolver = new PathResolver('./', {
+    const resolver = new FSPathResolver('./', {
       baseUrl: './base',
       extensions: ['foo', 'bar'],
     });
@@ -71,7 +71,7 @@ describe('PathResolver', () => {
   });
 
   it('Should preserve order of checking extensions', () => {
-    const resolver = new PathResolver('./', {
+    const resolver = new FSPathResolver('./', {
       baseUrl: './base',
       extensions: ['foo', 'bar'],
     });
@@ -115,7 +115,7 @@ describe('PathResolver', () => {
   });
 
   it('Should work with default options', () => {
-    const resolver = new PathResolver('./');
+    const resolver = new FSPathResolver('./');
 
     expect(resolver.isAliased('src/file')).toBe(false);
     expect(resolver.isLocal('src/file')).toBe(false);
@@ -126,7 +126,7 @@ describe('PathResolver', () => {
   });
 
   it('Should work with baseUrl', () => {
-    const resolver = new PathResolver('./', {
+    const resolver = new FSPathResolver('./', {
       baseUrl: 'src',
     });
 
@@ -140,7 +140,7 @@ describe('PathResolver', () => {
   });
 
   it('Should work with path aliases', () => {
-    const resolver = new PathResolver('./', {
+    const resolver = new FSPathResolver('./', {
       aliases: {
         components: ['./folder1/components', './folder2/components'],
       },
