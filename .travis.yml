@@ -1,18 +1,3 @@
-matrix:
-  include:
-    - os: linux
-      language: node_js
-      node_js: '12'
-
-cache:
-  directories:
-    - node_modules
-
-script:
-  - npm install
-  - CI=true npm test --passWithNoTests --ci
-  - npm run build
-
-branches:
-  except:
-    - "/^v\\d+\\.\\d+\\.\\d+$/"
+language: node_js
+node_js:
+  - 12
