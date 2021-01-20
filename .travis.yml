@@ -11,7 +11,7 @@ cache:
 script:
   - npm ci
   - CI=true npm test --passWithNoTests --ci
-  - npm build
+  - npm run build
 
 branches:
   except:
