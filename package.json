@@ -17,6 +17,9 @@
     "name": "Frank Horrigan",
     "url": "https://github.com/saurer"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT",
   "dependencies": {
     "@babel/core": "^7.12.10",
