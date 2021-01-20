@@ -1,5 +1,5 @@
 {
-  "name": "prettier-plugin-group-imports",
+  "name": "@devim-front/prettier-plugin-group-imports",
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
